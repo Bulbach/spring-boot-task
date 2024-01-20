@@ -1,0 +1,55 @@
+spring:
+  profiles:
+    active: development
+---
+spring:
+  profiles: development
+  database:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/myClevertecDB
+    username: alex
+    password: alex
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+---
+spring:
+  profiles: test
+  database:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+    ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.H2Dialect
+---
+spring:
+  profiles: production
+  database:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/myClevertecDB
+    username: alex
+    password: alex
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect

@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: db/v0.0/ddl/2024-01-16--01-create-table.sql
+  - include:
+      file: db/v0.0/dml/2024-01-16--01-fill-table.sql
