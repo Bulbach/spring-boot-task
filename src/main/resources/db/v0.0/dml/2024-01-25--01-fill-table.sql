@@ -20,8 +20,5 @@ values
     (9,'c60ec4d9-d5db-439e-a6d8-fdd163c02d2e', 'Michael', 'Davis', 'Male', now(), now(), 'QR567', '123890', 4),
     (10,'255f6859-fcfc-423d-867f-b06d18d7007a', 'Olivia', 'Miller', 'Female', now(), now(), 'ST890', '567012', 5);
 
-insert into house_residents (house_id, person_id) values
-    (1, 1), (2, 2), (3, 3), (4, 4), (5, 5);
-
 insert into house_owners (house_id, person_id) values
     (1, 6), (2, 7), (3, 8), (4, 9), (5, 10);

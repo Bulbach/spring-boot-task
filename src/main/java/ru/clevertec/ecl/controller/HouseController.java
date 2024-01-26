@@ -71,4 +71,17 @@ public class HouseController {
         houseService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/{houseId}/tenants")
+    public ResponseEntity<Collection<ResponseDtoPerson>> getTenantsByHouseId(@PathVariable UUID houseId) {
+
+        List<ResponseDtoPerson> tenants = houseService.getTenantsByHouseId(houseId);
+        return new ResponseEntity<>(tenants, HttpStatus.OK);
+    }
+
+    @GetMapping("/{houseId}/owners")
+    public ResponseEntity<Collection<ResponseDtoPerson>> getOwnersByHouseId(@PathVariable UUID houseId) {
+        List<ResponseDtoPerson> owners = houseService.getOwnersByHouseId(houseId);
+        return new ResponseEntity<>(owners, HttpStatus.OK);
+    }
 }

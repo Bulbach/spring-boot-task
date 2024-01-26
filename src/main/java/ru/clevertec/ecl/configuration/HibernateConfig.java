@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-@Configuration
-@EnableTransactionManagement
+//@Configuration
+//@EnableTransactionManagement
 public class HibernateConfig {
 
     @Autowired
@@ -41,15 +41,6 @@ public class HibernateConfig {
         sessionFactory.setHibernateProperties(hibernateProperties());
 
         return sessionFactory;
-    }
-
-    @Bean
-    public HibernateTransactionManager transactionManager() {
-
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        transactionManager.setSessionFactory(sessionFactory().getObject());
-
-        return transactionManager;
     }
 
     private Properties hibernateProperties() {
