@@ -5,30 +5,31 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.clevertec.ecl.dto.requestDto.RequestDtoPerson;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Person;
-import ru.clevertec.ecl.exception.PersonNotFoundException;
+import ru.clevertec.ecl.mapper.PersonMapper;
 import ru.clevertec.ecl.repository.GenericRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
 @Repository
 public class PersonRepositoryImpl implements GenericRepository<Person, UUID> {
-
     @Autowired
     private SessionFactory sessionFactory;
     @Autowired
     private HouseRepositoryImpl houseRepository;
+
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private PersonMapper personMapper;
 
     @Override
     public Collection<Person> findAll() {
@@ -48,20 +49,24 @@ public class PersonRepositoryImpl implements GenericRepository<Person, UUID> {
         }
     }
 
-    public List<House> getOwnedHouses(UUID id) {
-
+    public Set<House> getOwnedHouses(UUID id) {
         try (Session session = sessionFactory.openSession()) {
             Query<Person> personQuery = session.createQuery("SELECT p FROM Person p WHERE p.uuid = :uuid", Person.class);
             Person person = personQuery.setParameter("uuid", id).uniqueResult();
+
             String hql = "SELECT DISTINCT h FROM House h JOIN h.owners o WHERE o = :person";
             Query<House> query = session.createQuery(hql, House.class);
             query.setParameter("person", person);
-            return query.getResultList();
+
+            // Используйте HashSet для создания множества из результата запроса
+            List<House> houseList = query.getResultList();
+            return new HashSet<>(houseList);
         }
     }
 
     @Override
     public Person create(Person person) {
+        House house;
         if (!isPersonUniqueByPassport(person)) {
             throw new RuntimeException("Person with the same details already exists");
         }
@@ -72,13 +77,16 @@ public class PersonRepositoryImpl implements GenericRepository<Person, UUID> {
 
         Optional<House> houseById = houseRepository.findById(person.getHouse().getUuid());
         if (houseById.isPresent()) {
-            House house = houseById.get();
+            house = houseById.get();
             person.setHouse(house);
-            if (person.isOwner()) {
-                house.getOwners().add(person);
-            }
         } else {
             throw new RuntimeException("House with uuid = " + person.getHouse().getUuid() + " is not exists");
+        }
+        Set<House> ownedHouses = getOwnedHouses(person.getUuid());
+        if (person.isOwner() && !ownedHouses.contains(house)) {
+            ownedHouses.add(house);
+        } else {
+            person.setHouse(house);
         }
 
         try (Session session = sessionFactory.openSession()) {
@@ -94,12 +102,51 @@ public class PersonRepositoryImpl implements GenericRepository<Person, UUID> {
 
     @Override
     public Person update(Person person) {
+
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
             person.setUpdateDate(LocalDateTime.now());
-            Person updatedPerson = session.merge(person);
-            session.getTransaction().commit();
-            return updatedPerson;
+            return session.merge(person);
+        } catch (Exception e) {
+            log.error("Failed to update person", e);
+            throw new RuntimeException("Failed to update person", e);
+        }
+
+    }
+
+    public Optional<House> getHouse(UUID houseUuid) {
+        return houseRepository.findById(houseUuid);
+
+    }
+
+
+    public Person update(RequestDtoPerson personDto) {
+        House houseWillChange;
+        try (Session session = sessionFactory.openSession()) {
+//            Person person = findById(UUID.fromString(personDto.uuid()))
+//                    .orElseThrow(() -> new PersonNotFoundException("Person not found with id: " + personDto.uuid()));
+
+            Person person = session.get(Person.class, 25);
+//            personMapper.updateModel(personDto, person);
+//            Optional<House> houseById = houseRepository.findById(person.getHouse().getUuid());
+            House house = session.get(House.class, 1);
+
+            person.addHouse(house);
+//            if (houseById.isPresent()) {
+//                houseWillChange = houseById.get();
+//                person.setHouse(houseWillChange);
+//            } else {
+//                throw new RuntimeException("House with uuid = " + person.getHouse().getUuid() + " is not exists");
+//            }
+//
+//             Получаем список владений домов в рамках той же сессии
+//            List<House> ownedHouses = getOwnedHouses(person.getUuid());
+//            if (person.isOwner() && !ownedHouses.contains(houseWillChange)) {
+//                ownedHouses.add(houseWillChange);
+//            }
+//            person.setOwnedHouses(ownedHouses);
+//            person.setUpdateDate(LocalDateTime.now());
+//
+            return session.merge(person);
         } catch (Exception e) {
             log.error("Failed to update person", e);
             throw new RuntimeException("Failed to update person", e);

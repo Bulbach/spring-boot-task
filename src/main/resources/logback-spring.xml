@@ -1,34 +1,40 @@
 <?xml version="1.0"?>
 <configuration>
-    <appender name="roll-by-time" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>app.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>app.%d{yyyy-MM-dd-HH-mm}.log.zip</fileNamePattern>
-            <maxHistory>5</maxHistory>
-            <totalSizeCap>5MB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{35}) - %msg %n</pattern>
-        </encoder>
-    </appender>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="ACTIVE_PROFILE" source="spring.config.activate.on-profile"/>
+<!--        <property resorce="META-INF/build-info.properties"/>-->
+<!--        <property name="LOG_TEMP" value="./logs"/>-->
+    <springProfile name="development">
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{35}) - %msg %n</pattern>
-        </encoder>
-    </appender>
-    <appender name="temp" class="ch.qos.logback.classic.Logger">
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{35}) - %msg %n</pattern>
-        </encoder>
-    </appender>
+        <appender name="roll-by-time" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>app.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>logs/app.%d{yyyy-MM-dd-HH-mm}.log.zip</fileNamePattern>
+                <maxHistory>5</maxHistory>
+                <totalSizeCap>5MB</totalSizeCap>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{35}) - %msg %n</pattern>
+            </encoder>
+        </appender>
 
-    <root>
-        <level value="TRACE"/>
-        <appender-ref ref="roll-by-time"/>
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="temp"/>
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <charset>UTF-8</charset>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{35}) - %msg %n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="TRACE">
+            <appender-ref ref="roll-by-time"/>
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+
+    <root level="INFO">
+        <springProfile name="development">
+            <appender-ref ref="roll-by-time"/>
+            <appender-ref ref="STDOUT"/>
+        </springProfile>
     </root>
 </configuration>

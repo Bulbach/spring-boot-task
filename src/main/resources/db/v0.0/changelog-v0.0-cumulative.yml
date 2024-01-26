@@ -1,5 +1,29 @@
 databaseChangeLog:
   - include:
       file: db/v0.0/ddl/2024-01-16--01-create-table.sql
+  - changeSet:
+      id: 1
+      author: alex
+      changes:
+        - sqlFile:
+            path: db/v0.0/ddl/2024-01-24--01-create-table-history.sql
+            splitStatements: true
+            stripComments: true
+  - changeSet:
+      id: 2
+      author: alex
+      changes:
+        - sqlFile:
+            path: db/v0.0/ddl/2024-01-21--01-create-trigger.sql
+            splitStatements: false
+            stripComments: true
+  - changeSet:
+      id: 3
+      author: alex
+      changes:
+        - sqlFile:
+            path: db/v0.0/ddl/2024-01-23--01-create-trigger-house-owner.sql
+            splitStatements: false
+            stripComments: true
   - include:
-      file: db/v0.0/dml/2024-01-16--01-fill-table.sql
+      file: db/v0.0/dml/2024-01-25--01-fill-table.sql
