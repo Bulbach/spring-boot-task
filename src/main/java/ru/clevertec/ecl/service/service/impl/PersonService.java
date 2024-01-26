@@ -39,11 +39,13 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PersonService {
-
+    @Autowired
     private final SessionFactory sessionFactory;
+    @Autowired
     private final HouseJpaRepository houseJpaRepository;
     private final PersonMapper personMapper;
     private final HouseMapper houseMapper;
+    @Autowired
     private final PersonJpaRepository jpaRepository;
 
     public Collection<ResponseDtoPerson> getAllPersons(int size) {
