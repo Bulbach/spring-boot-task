@@ -1,18 +1,19 @@
 package ru.clevertec.ecl.entity;
 
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
@@ -20,8 +21,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,14 +32,13 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "person")
-@EqualsAndHashCode(exclude = {"house", "ownedHouses"})
+@EqualsAndHashCode(exclude = {"ownedHouses", "houseHistories"})
 public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(name = "uuid", unique = true, nullable = false, columnDefinition = "UUID")
     private UUID uuid;
 
@@ -66,16 +68,38 @@ public class Person {
     @Embedded
     private Passport passport;
     @Transient
-    private boolean isOwner;
+    private boolean owner;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "house_id")
+    @ToString.Exclude
     private House house;
 
-    @ManyToMany(mappedBy = "owners", cascade = CascadeType.ALL)
-    private Set<House> ownedHouses;
+    @ManyToMany(mappedBy = "owners", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<House> ownedHouses = new HashSet<>();
+
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, orphanRemoval = false)
+    @ToString.Exclude
+    private Set<HouseHistory> houseHistories = new HashSet<>();
+
 
     public enum Sex {
         Male, Female
+    }
+
+    public void addHouse(House house) {
+        this.house = house;
+        house.addResident(this);
+    }
+
+    public void addOwnedHouse(House house) {
+        ownedHouses.add(house);
+        house.getOwners().add(this);
+    }
+
+    public void removeOwnedHouse(House house) {
+        ownedHouses.remove(house);
+        house.getOwners().remove(this);
     }
 }

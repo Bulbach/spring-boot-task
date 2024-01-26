@@ -15,10 +15,12 @@
     <retain-sticky-names value="false" />
   </component>
   <component name="DBNavigator.Project.FileConnectionMappingManager">
-    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/ddl/2024-01-16--01-create-table.sql" connection-id="virtual-postgres-connection" session-id="MAIN" current-schema="" />
-    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/dml/2024-01-14--01-fill-table.sql" connection-id="virtual-postgres-connection" session-id="MAIN" current-schema="" />
+    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/ddl/2024-01-23--01-create-table.sql" connection-id="virtual-postgres-connection" session-id="" current-schema="" />
+    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/ddl/2024-01-21--01-create-trigger.sql" connection-id="virtual-postgres-connection" session-id="" current-schema="" />
     <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/ddl/2024-01-14--01-create-table.sql" connection-id="virtual-postgres-connection" session-id="MAIN" current-schema="" />
     <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/dml/2024-01-16--01-fill-table.sql" connection-id="virtual-postgres-connection" session-id="MAIN" current-schema="" />
+    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/dml/2024-01-14--01-fill-table.sql" connection-id="virtual-postgres-connection" session-id="MAIN" current-schema="" />
+    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/db/v0.0/ddl/2024-01-16--01-create-table.sql" connection-id="virtual-postgres-connection" session-id="MAIN" current-schema="" />
   </component>
   <component name="DBNavigator.Project.ScriptExecutionManager" clear-outputs="true">
     <recently-used-interfaces />

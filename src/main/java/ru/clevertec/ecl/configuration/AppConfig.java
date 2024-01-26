@@ -13,28 +13,30 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import ru.clevertec.ecl.cache.AbstractCache;
+import ru.clevertec.ecl.cache.impl.LFUCache;
+import ru.clevertec.ecl.cache.impl.LRUCache;
+import ru.clevertec.ecl.dto.requestDto.RequestDtoHouse;
+import ru.clevertec.ecl.dto.requestDto.RequestDtoPerson;
+import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
+import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 
 
 @Slf4j
 @Configuration
-@ComponentScan(basePackages = "ru.clevertec.ecl")
 public class AppConfig {
 
-    @Value("${spring.database.driver-class-name}")
-    private String DATABASE_DRIVER;
-    @Value("${spring.database.url}")
-    private String DATABASE_URL;
-    @Value("${spring.database.username}")
-    private String DATABASE_USER;
-    @Value("${spring.database.password}")
-    private String DATABASE_PASSWORD;
-
+    @Value("${spring.cache.algorithm}")
+    private String CACHE_ALGORITHM;
+    @Value("${spring.cache.max-size}")
+    private int CAPACITY_KEY;
     @Bean
     public static BeanFactoryPostProcessor beanFactoryPostProcessor() {
 
@@ -47,34 +49,16 @@ public class AppConfig {
     }
 
     @Bean
-    public DataSource getDataSource() throws SQLException, PropertyVetoException {
-
-        HikariDataSource hikariDataSource = new HikariDataSource();
-        hikariDataSource.setDriverClassName(DATABASE_DRIVER);
-        hikariDataSource.setJdbcUrl(DATABASE_URL);
-        hikariDataSource.setUsername(DATABASE_USER);
-        hikariDataSource.setPassword(DATABASE_PASSWORD);
-        hikariDataSource.setMinimumIdle(3);
-        hikariDataSource.setMaximumPoolSize(10);
-
-        log.info("create database");
-        return hikariDataSource;
+    public AbstractCache<UUID, ResponseDtoHouse> houseCache() {
+        return "LFU".equals(CACHE_ALGORITHM)
+                ? new LFUCache<>(CAPACITY_KEY)
+                : new LRUCache<>(CAPACITY_KEY);
     }
-
     @Bean
-    public JdbcTemplate jdbcTemplate() throws PropertyVetoException, SQLException {
-
-        return new JdbcTemplate(getDataSource());
-    }
-
-    @Bean
-    public SpringLiquibase liquibase(DataSource dataSource) {
-
-        SpringLiquibase liquibase = new SpringLiquibase();
-        liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog("classpath:/changelog.yaml");
-
-        return liquibase;
+    public AbstractCache<UUID, ResponseDtoPerson> personCache() {
+        return "LFU".equals(CACHE_ALGORITHM)
+                ? new LFUCache<>(CAPACITY_KEY)
+                : new LRUCache<>(CAPACITY_KEY);
     }
 
 }

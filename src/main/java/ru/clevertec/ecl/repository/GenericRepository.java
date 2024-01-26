@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 
-public interface GenericRepository<T,K> {
+public interface GenericRepository<T,K>{
 
     Collection<T> findAll();
 
