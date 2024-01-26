@@ -2,6 +2,7 @@ package ru.clevertec.ecl.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,24 +14,24 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 @Data
 @Entity
 @Table(name = "house")
-@EqualsAndHashCode(exclude = {"residents","owners"})
 public class House {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(name = "uuid", unique = true, nullable = false, columnDefinition = "UUID")
     private UUID uuid;
 
@@ -55,7 +56,7 @@ public class House {
 
     @NotBlank
     @Size(max = 120)
-    @Column(name = "houseNumber", nullable = false)
+    @Column(name = "housenumber", nullable = false)
     private String houseNumber;
 
     @NotNull
@@ -63,13 +64,38 @@ public class House {
     private LocalDateTime createDate;
 
     @OneToMany(mappedBy = "house")
-    private Set<Person> residents;
+    @ToString.Exclude
+    private Set<Person> residents = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "house_owners",
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "house_owners",
             joinColumns = @JoinColumn(name = "house_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id")
     )
-    private Set<Person> owners;
+    @ToString.Exclude
+    private List<Person> owners = new ArrayList<>();
+
+    @OneToMany(mappedBy = "house", fetch = FetchType.LAZY, orphanRemoval = false)
+    @ToString.Exclude
+    private Set<HouseHistory> houseHistories = new HashSet<>();
+
+    public void addOwner(Person person) {
+        owners.add(person);
+        person.getOwnedHouses().add(this);
+    }
+
+    public void removeOwner(Person person) {
+        owners.remove(person);
+        person.getOwnedHouses().remove(this);
+    }
+
+    public void addResident(Person person) {
+        residents.add(person);
+        person.setHouse(this);
+    }
+
+    public void removeResident(Person person) {
+        residents.remove(person);
+        person.setHouse(null);
+    }
 }

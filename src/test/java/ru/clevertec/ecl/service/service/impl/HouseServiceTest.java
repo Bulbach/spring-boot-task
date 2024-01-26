@@ -15,6 +15,7 @@ import ru.clevertec.ecl.entity.Person;
 import ru.clevertec.ecl.mapper.HouseMapper;
 import ru.clevertec.ecl.mapper.PersonMapper;
 import ru.clevertec.ecl.repository.impl.HouseRepositoryImpl;
+import ru.clevertec.ecl.repository.jpa.PersonJpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -35,6 +36,8 @@ class HouseServiceTest {
 
     @Mock
     private HouseRepositoryImpl houseRepository;
+    @Mock
+    private PersonJpaRepository personJpaRepository;
 
     @Mock
     private HouseMapper houseMapper;
@@ -112,12 +115,12 @@ class HouseServiceTest {
         when(houseRepository.getResidents(houseId)).thenReturn(mockResidents);
         when(personMapper.toDto(any())).thenReturn(new ResponseDtoPerson(
                 "feda712b-54b8-4e9e-ba67-fbc5665c3cab",
-                       "Alex",
+                "Alex",
                 "Big",
                 "Male",
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                new Passport("CD456","789012")
+                new Passport("CD456", "789012")
 
         ));
 
@@ -212,4 +215,4 @@ class HouseServiceTest {
         // then
         verify(houseRepository, times(1)).delete(houseId);
     }
-    }
+}

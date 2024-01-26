@@ -1,17 +1,10 @@
 spring:
-  profiles: test
+  config:
+    activate:
+      on-profile: test
   database:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/myClevertecDB
-    username: alex
-    password: alex
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-      show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+#    url: jdbc:tc:postgresql:15.1-alpine:///test?TC_TMPFS=/testtmpfs:rw
+    username: test
+    password: test
+  liquibase:
+    enabled: true

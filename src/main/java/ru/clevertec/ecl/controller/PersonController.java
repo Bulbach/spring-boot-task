@@ -41,12 +41,12 @@ public class PersonController {
         ResponseDtoPerson person = personService.getById(id);
         return new ResponseEntity<>(person, HttpStatus.OK);
     }
-    @GetMapping("/{personId}/owned-houses")
-    public ResponseEntity<Collection<ResponseDtoHouse>> getOwnedHouses(@PathVariable UUID personId) {
-
-        Collection<ResponseDtoHouse> ownedHouses = personService.getOwnedHouses(personId);
-        return new ResponseEntity<>(ownedHouses, HttpStatus.OK);
-    }
+//    @GetMapping("/{personId}/own-houses")
+//    public ResponseEntity<Collection<ResponseDtoHouse>> getOwnedHouses(@PathVariable UUID personId) {
+//
+//        Collection<ResponseDtoHouse> ownedHouses = personService.getOwnedHouses(personId);
+//        return new ResponseEntity<>(ownedHouses, HttpStatus.OK);
+//    }
 
     @PostMapping
     public ResponseEntity<ResponseDtoPerson> createPerson(@RequestBody RequestDtoPerson requestDtoPerson) {
@@ -67,5 +67,17 @@ public class PersonController {
 
         personService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{personId}/houses")
+    public ResponseEntity<Collection<ResponseDtoHouse>> getHousesByPersonId(@PathVariable UUID personId) {
+        List<ResponseDtoHouse> housesByPersonId = personService.getHousesByPersonId(personId);
+        return new ResponseEntity<>(housesByPersonId, HttpStatus.OK);
+    }
+
+    @GetMapping("/{personId}/owned-houses")
+    public ResponseEntity<Collection<ResponseDtoHouse>> getOwnedHousesByPersonId(@PathVariable UUID personId) {
+        List<ResponseDtoHouse> ownedHousesByPersonId = personService.getOwnedHousesByPersonId(personId);
+        return new ResponseEntity<>(ownedHousesByPersonId, HttpStatus.OK);
     }
 }
