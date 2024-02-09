@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
-class HouseServiceTest {
+class HouseServiceImplTest {
 
     @Mock
     private HouseRepositoryImpl houseRepository;
@@ -46,7 +46,7 @@ class HouseServiceTest {
     private PersonMapper personMapper;
 
     @InjectMocks
-    private HouseService houseService;
+    private HouseServiceImpl houseServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +60,7 @@ class HouseServiceTest {
     void getAll() {
 
         // given
-        List<House> mockHouses = Arrays.asList(new House(), new House());
+        List<House> mockHouses = Arrays.asList( House.builder().build(), House.builder().build());
         when(houseRepository.findAll()).thenReturn(mockHouses);
         when(houseMapper.toDto(any()))
                 .thenReturn(new ResponseDtoHouse("4c78be6d-1a6d-47bb-ae4a-0b63f2beccd0",
@@ -73,7 +73,7 @@ class HouseServiceTest {
                 ));
 
         // when
-        Collection<ResponseDtoHouse> result = houseService.getAll(2);
+        Collection<ResponseDtoHouse> result = houseServiceImpl.getAll(2);
 
         // then
         assertEquals(2, result.size());
@@ -86,7 +86,7 @@ class HouseServiceTest {
 
         // given
         UUID houseId = UUID.fromString("4c78be6d-1a6d-47bb-ae4a-0b63f2beccd0");
-        House mockHouse = new House();
+        House mockHouse = House.builder().build();
         when(houseRepository.findById(houseId)).thenReturn(Optional.of(mockHouse));
         when(houseMapper.toDto(any()))
                 .thenReturn(new ResponseDtoHouse("4c78be6d-1a6d-47bb-ae4a-0b63f2beccd0",
@@ -99,7 +99,7 @@ class HouseServiceTest {
                 ));
 
         // when
-        ResponseDtoHouse result = houseService.getById(houseId);
+        ResponseDtoHouse result = houseServiceImpl.getById(houseId);
 
         // then
         assertNotNull(result);
@@ -111,7 +111,7 @@ class HouseServiceTest {
     void getResidents() {
         // given
         UUID houseId = UUID.randomUUID();
-        List<Person> mockResidents = Arrays.asList(new Person(), new Person());
+        List<Person> mockResidents = Arrays.asList( Person.builder().build(), Person.builder().build());
         when(houseRepository.getResidents(houseId)).thenReturn(mockResidents);
         when(personMapper.toDto(any())).thenReturn(new ResponseDtoPerson(
                 "feda712b-54b8-4e9e-ba67-fbc5665c3cab",
@@ -125,7 +125,7 @@ class HouseServiceTest {
         ));
 
         // when
-        Collection<ResponseDtoPerson> result = houseService.getResidents(houseId);
+        Collection<ResponseDtoPerson> result = houseServiceImpl.getResidents(houseId);
 
         // then
         assertEquals(2, result.size());
@@ -143,7 +143,7 @@ class HouseServiceTest {
                 "Street",
                 "13",
                 LocalDateTime.now());
-        House mockHouse = new House();
+        House mockHouse = House.builder().build();
         when(houseMapper.toModel(requestDtoHouse)).thenReturn(mockHouse);
         when(houseRepository.create(mockHouse)).thenReturn(mockHouse);
         when(houseMapper.toDto(mockHouse)).thenReturn(new ResponseDtoHouse("4c78be6d-1a6d-47bb-ae4a-0b63f2beccd0",
@@ -155,7 +155,7 @@ class HouseServiceTest {
                 LocalDateTime.now()));
 
         // given
-        ResponseDtoHouse result = houseService.create(requestDtoHouse);
+        ResponseDtoHouse result = houseServiceImpl.create(requestDtoHouse);
 
         // then
         assertNotNull(result);
@@ -175,7 +175,7 @@ class HouseServiceTest {
                 "Street",
                 "15",
                 LocalDateTime.now());
-        House existingHouse = new House();
+        House existingHouse = House.builder().build();
         existingHouse.setUuid(UUID.fromString("4c78be6d-1a6d-47bb-ae4a-0b63f2beccd0"));
         existingHouse.setArea(140.1);
         existingHouse.setCountry("Country");
@@ -194,7 +194,7 @@ class HouseServiceTest {
                 LocalDateTime.now()));
 
         // given
-        ResponseDtoHouse result = houseService.update(houseId, requestDtoHouse);
+        ResponseDtoHouse result = houseServiceImpl.update(houseId, requestDtoHouse);
 
         // then
         assertNotNull(result);
@@ -210,7 +210,7 @@ class HouseServiceTest {
         UUID houseId = UUID.fromString("feda712b-54b8-4e9e-ba67-fbc5665c3cab");
 
         // given
-        houseService.delete(houseId);
+        houseServiceImpl.delete(houseId);
 
         // then
         verify(houseRepository, times(1)).delete(houseId);

@@ -10,11 +10,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Sql("classpath:changelog-test.yamlhttps://habr.com/ru/articles/715496/")
 @Transactional
 @Testcontainers
 @ActiveProfiles("test")
-public class PostgresSqlContainerInitialization {
+public abstract class PostgresSqlContainerInitialization {
     @Container
     private static final PostgreSQLContainer<?> postgreSQLContainer
             = new PostgreSQLContainer<>("postgres:15.1-alpine");
@@ -27,5 +26,7 @@ public class PostgresSqlContainerInitialization {
     @DynamicPropertySource
     private static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
+        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
     }
 }
