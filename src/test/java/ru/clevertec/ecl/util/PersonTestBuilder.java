@@ -6,18 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoPerson;
+import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Passport;
 import ru.clevertec.ecl.entity.Person;
+import ru.clevertec.ecl.mapper.PersonMapper;
+import ru.clevertec.ecl.mapper.PersonMapperImpl;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Builder(setterPrefix = "with")
@@ -44,8 +46,8 @@ public class PersonTestBuilder {
     private Passport passport = new Passport("HB234", "2344t56");
     @Builder.Default()
     private House house = HouseTestBuilder.builder().build().houses().get(2);
-    @Builder.Default()
-    private Set<House> ownedHouses = new HashSet<>();
+
+    private final PersonMapper personMapper = new PersonMapperImpl();
 
     public static Person buildPerson() {
 
@@ -55,21 +57,18 @@ public class PersonTestBuilder {
                 .surname("Appel")
                 .sex(Person.Sex.Female)
                 .createDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.MAX)
+                .updateDate(LocalDateTime.now().plusHours(1L))
                 .house(HouseTestBuilder.builder().build().houses().get(2))
                 .passport(PersonTestBuilder.builder().build().passports().get(2))
                 .build();
     }
 
-    public RequestDtoPerson requestDtoPerson(House house) {
+    public RequestDtoPerson buildRequestDtoPerson(House house, Person person) {
 
-        Random random = new Random();
         String uuid = UUID.randomUUID().toString();
-        List<Person> persons = persons();
-        Person person = persons.get(random.nextInt(persons.size()));
         return new RequestDtoPerson(uuid,
-                person.getName(),
-                person.getSurname(),
+                person.getName() + "test",
+                person.getSurname() + "test",
                 person.getSex(),
                 person.getCreateDate(),
                 person.getUpdateDate(),
@@ -82,8 +81,20 @@ public class PersonTestBuilder {
         return new ResponseDtoPerson(uuid.toString(), name, surname, sex.toString(), createDate, updateDate, passport);
     }
 
+    public RequestDtoPerson requestDtoPerson() {
+        return new RequestDtoPerson(uuid.toString(), name, surname, sex, createDate, updateDate, passport, house, false);
+    }
+
+    public RequestDtoPerson requestCreateDtoPerson() {
+        return new RequestDtoPerson(null, name, surname, sex, createDate, updateDate, passport, house, false);
+    }
+
     public enum Sex {
         Male, Female
+    }
+
+    public List<ResponseDtoHouse> getDtoHouses() {
+        return HouseTestBuilder.builder().build().dtoHouses();
     }
 
     public List<Person> persons() {
@@ -119,6 +130,10 @@ public class PersonTestBuilder {
                         .house(HouseTestBuilder.builder().build().houses().get(2))
                         .build()
         );
+    }
+
+    public List<ResponseDtoPerson> dtoPersons() {
+        return persons().stream().map(personMapper::toDto).collect(Collectors.toList());
     }
 
     public List<Passport> passports() {

@@ -13,9 +13,15 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,9 +29,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-@Data
+
 @Entity
 @Table(name = "house")
+@Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@EqualsAndHashCode(exclude = {"ownedHouses", "residents", "houseHistories"})
 public class House {
 
     @Id
@@ -61,6 +74,7 @@ public class House {
 
     @NotNull
     @Column(name = "create_date", nullable = false)
+    @DateTimeFormat(fallbackPatterns = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createDate;
 
     @OneToMany(mappedBy = "house")
@@ -98,4 +112,5 @@ public class House {
         residents.remove(person);
         person.setHouse(null);
     }
+
 }

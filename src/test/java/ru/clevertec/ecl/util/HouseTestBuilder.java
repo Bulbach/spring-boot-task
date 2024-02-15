@@ -63,12 +63,6 @@ public class HouseTestBuilder {
 
     @Builder.Default()
     private LocalDateTime createDate = LocalDateTime.of(2022, Month.MAY, 14, 13, 45);
-//
-//    @Builder.Default()
-//    private Set<Person> residents = new HashSet<>();
-//
-//    @Builder.Default()
-//    private List<Person> owners = new ArrayList<>();
 
     private final HouseMapper houseMapper = new HouseMapperImpl();
     private final PersonMapper personMapper = new PersonMapperImpl();
@@ -106,11 +100,11 @@ public class HouseTestBuilder {
     public static House testHouse() {
         House house = House.builder()
                 .uuid(UUID.fromString("b7d69c82-9833-4364-9c77-a0ecfc467c63"))
-                .area(345.2)
-                .country("Burundia")
-                .city("Grust")
-                .street("Mad_street")
-                .houseNumber("213")
+                .area(649.7)
+                .country("USA")
+                .city("Ostin")
+                .street("Green_avenue")
+                .houseNumber("333")
                 .createDate(LocalDateTime.now())
                 .build();
         return house;
@@ -132,15 +126,13 @@ public class HouseTestBuilder {
 
         return List.of(
                 House.builder()
-                        .uuid(UUID.fromString("b7d69c82-9833-4364-9c77-a0ecfc467c63"))
+                        .uuid(UUID.fromString("62672de0-6061-4950-ac08-fea4fefdb7de"))
                         .area(345.2)
                         .country("Burundia")
                         .city("Grust")
                         .street("Mad_street")
                         .houseNumber("213")
                         .createDate(LocalDateTime.now())
-//                        .residents(new HashSet<>())
-//                        .owners(new ArrayList<>())
                         .build(),
                 House.builder()
                         .uuid(UUID.fromString("0d307e34-d7cb-4673-9ddd-92d64409995e"))
@@ -150,8 +142,6 @@ public class HouseTestBuilder {
                         .street("shtrasse")
                         .houseNumber("111")
                         .createDate(LocalDateTime.now())
-//                        .residents(new HashSet<>())
-//                        .owners(new ArrayList<>())
                         .build(),
                 House.builder()
                         .uuid(UUID.fromString("6d06634d-453d-4a8f-854b-04b1e32756a5"))
@@ -161,8 +151,6 @@ public class HouseTestBuilder {
                         .street("Pha")
                         .houseNumber("545")
                         .createDate(LocalDateTime.now())
-//                        .residents(new HashSet<>())
-//                        .owners(new ArrayList<>())
                         .build()
 
         );

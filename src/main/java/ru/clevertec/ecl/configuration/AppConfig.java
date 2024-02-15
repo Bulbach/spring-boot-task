@@ -1,11 +1,13 @@
 package ru.clevertec.ecl.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -31,34 +33,40 @@ import java.util.UUID;
 
 @Slf4j
 @Configuration
+@ConfigurationProperties(prefix = "spring.cache")
 public class AppConfig {
 
-    @Value("${spring.cache.algorithm}")
-    private String CACHE_ALGORITHM;
-    @Value("${spring.cache.max-size}")
-    private int CAPACITY_KEY;
-    @Bean
-    public static BeanFactoryPostProcessor beanFactoryPostProcessor() {
+//    @Value("${spring.cache.algorithm}")
+//    private String CACHE_ALGORITHM;
+//    @Value("${spring.cache.max-size}")
+//    private int CAPACITY_KEY;
 
-        PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
-        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
-        yaml.setResources(new ClassPathResource("application.yml"));
-        Properties yamlObject = Objects.requireNonNull(yaml.getObject(), "Could not load yml");
-        propertyConfigurer.setProperties(yamlObject);
-        return propertyConfigurer;
-    }
+    private String algorithm;
+
+    private int max_size;
+//    @Bean
+//    public static BeanFactoryPostProcessor beanFactoryPostProcessor() {
+//
+//        PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
+//        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
+//        yaml.setResources(new ClassPathResource("application.yml"));
+//        Properties yamlObject = Objects.requireNonNull(yaml.getObject(), "Could not load yml");
+//        propertyConfigurer.setProperties(yamlObject);
+//        return propertyConfigurer;
+//    }
+
 
     @Bean
     public AbstractCache<UUID, ResponseDtoHouse> houseCache() {
-        return "LFU".equals(CACHE_ALGORITHM)
-                ? new LFUCache<>(CAPACITY_KEY)
-                : new LRUCache<>(CAPACITY_KEY);
+        return "LFU".equals(algorithm)
+                ? new LFUCache<>(max_size)
+                : new LRUCache<>(max_size);
     }
     @Bean
     public AbstractCache<UUID, ResponseDtoPerson> personCache() {
-        return "LFU".equals(CACHE_ALGORITHM)
-                ? new LFUCache<>(CAPACITY_KEY)
-                : new LRUCache<>(CAPACITY_KEY);
+        return "LFU".equals(algorithm)
+                ? new LFUCache<>(max_size)
+                : new LRUCache<>(max_size);
     }
 
 }

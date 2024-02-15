@@ -15,11 +15,13 @@ public interface HouseMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "residents", ignore = true)
     @Mapping(target = "owners", ignore = true)
+    @Mapping(target = "houseHistories", ignore = true)
     House toModel(RequestDtoHouse requestDtoHouse);
-
+    @Mapping(source = "createDate", target = "createDate", dateFormat = "yyyy-MM-dd HH:mm:ss.SSS")
     ResponseDtoHouse toDto(House house);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "residents", ignore = true)
     @Mapping(target = "owners", ignore = true)
+    @Mapping(target = "houseHistories", ignore = true)
     void updateModel(RequestDtoHouse requestDtoHouse, @MappingTarget House house);
 }

@@ -34,7 +34,7 @@ public class ControllerExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.OK)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ErrorMessage allAppException(Exception ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.NOT_FOUND.value(),

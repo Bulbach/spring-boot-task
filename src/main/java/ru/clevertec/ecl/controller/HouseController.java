@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,8 +26,7 @@ import java.util.UUID;
 @RequestMapping("/houses")
 public class HouseController {
 
-    @Autowired
-    private final HouseService houseService;
+    private final HouseService<ResponseDtoHouse, RequestDtoHouse> houseService;
 
     @GetMapping
     public ResponseEntity<Collection<ResponseDtoHouse>> getAll(@RequestParam(defaultValue = "15") int size) {
@@ -84,4 +82,5 @@ public class HouseController {
         List<ResponseDtoPerson> owners = houseService.getOwnersByHouseId(houseId);
         return new ResponseEntity<>(owners, HttpStatus.OK);
     }
+
 }

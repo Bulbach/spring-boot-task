@@ -1,10 +1,8 @@
 spring:
-  config:
-    activate:
-      on-profile: test
   database:
 #    url: jdbc:tc:postgresql:15.1-alpine:///test?TC_TMPFS=/testtmpfs:rw
     username: test
     password: test
+
   liquibase:
     enabled: true

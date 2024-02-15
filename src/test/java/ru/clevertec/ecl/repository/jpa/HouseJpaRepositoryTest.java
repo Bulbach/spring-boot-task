@@ -10,15 +10,14 @@ import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Person;
 import ru.clevertec.ecl.exception.HouseNotFoundException;
 import ru.clevertec.ecl.util.HouseTestBuilder;
+import ru.clevertec.ecl.util.PersonTestBuilder;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static ru.clevertec.ecl.util.PersonTestBuilder.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @DataJpaTest
 @RequiredArgsConstructor
@@ -53,11 +52,11 @@ class HouseJpaRepositoryTest extends PostgresSqlContainerInitialization {
         // when
         House house = HouseTestBuilder.testHouse();
         houseJpaRepository.save(house);
-        Person personOne = builder().build().persons().get(1);
+        Person personOne = PersonTestBuilder.builder().build().persons().get(1);
         personOne.setHouse(house);
         personJpaRepository.save(personOne);
 
-        Person personTwo = builder().build().persons().get(0);
+        Person personTwo = PersonTestBuilder.builder().build().persons().get(0);
         personTwo.setHouse(house);
         personJpaRepository.save(personTwo);
 
@@ -81,12 +80,12 @@ class HouseJpaRepositoryTest extends PostgresSqlContainerInitialization {
         UUID one = UUID.fromString("81a1a01f-7ceb-4535-879f-5f3cff68479f");
         UUID two = UUID.fromString("5ff2c821-a086-46bf-a4b1-55e43c91a885");
 
-        Person personOne = builder().build().persons().get(1);
+        Person personOne = PersonTestBuilder.builder().build().persons().get(1);
         personOne.setUuid(one);
         personOne.setHouse(tenantHouse);
         personJpaRepository.save(personOne);
 
-        Person personTwo = builder().build().persons().get(0);
+        Person personTwo = PersonTestBuilder.builder().build().persons().get(0);
         personTwo.setUuid(two);
         personTwo.setHouse(tenantHouse);
         personJpaRepository.save(personTwo);

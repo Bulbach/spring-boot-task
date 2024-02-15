@@ -1,223 +1,222 @@
 package ru.clevertec.ecl.controller;
 
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestConstructor;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import ru.clevertec.ecl.PostgresSqlContainerInitialization;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoPerson;
-import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
-import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Passport;
-import ru.clevertec.ecl.entity.Person;
 import ru.clevertec.ecl.service.service.impl.PersonServiceImpl;
-import ru.clevertec.ecl.util.HouseTestBuilder;
 import ru.clevertec.ecl.util.PersonTestBuilder;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
-@SpringBootTest()
-@AutoConfigureMockMvc
-//@NoArgsConstructor
-@RequiredArgsConstructor
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class PersonControllerTest extends PostgresSqlContainerInitialization {
 
-    @LocalServerPort
-    private int port;
-    private ObjectMapper objectMapper;
+@WebMvcTest(controllers = PersonController.class)
+public class PersonControllerTest {
 
-    private MockMvc mockMvc;
-
-    private PersonController personController;
-
-    @AfterEach
-    public void resetDb() {
-//        repository.deleteAll();
-    }
-
-    private final PersonServiceImpl personServiceImpl;
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper mapper;
+    @MockBean
+    private PersonServiceImpl personServiceImpl;
 
     @Test
-    void getAllPersons() {
+    void getAllPersons_success() throws Exception {
         // when
         int size = 15;
-        ResponseEntity<ResponseDtoPerson[]> response = restTemplate.getForEntity(
-                "http://localhost:" + port + "/persons?size=" + size, ResponseDtoPerson[].class);
-
-        ResponseDtoPerson[] persons = response.getBody();
-        int expected = persons.length;
-
-        // given
-        Collection<ResponseDtoPerson> allPersons = personServiceImpl.getAllPersons(size);
-        int actual = allPersons.size();
+        Mockito.when(personServiceImpl.getAllPersons(size))
+                .thenReturn(PersonTestBuilder.builder().build().dtoPersons());
 
         // then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertEquals(actual, expected);
-        assertNotNull(persons);
-        assertThat(expected).isLessThan(size);
+        mockMvc.perform(get("/persons?size=" + size)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    void getById() {
+    void getById_success() throws Exception {
+        // when
+        ResponseDtoPerson responseDtoPerson = PersonTestBuilder.builder().build().responseDtoPerson();
+        UUID personId = UUID.fromString(responseDtoPerson.uuid());
+        Mockito.when(personServiceImpl.getById(personId))
+                .thenReturn(responseDtoPerson);
+
+        // then
+        mockMvc.perform(get("/persons/{id}", personId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid").value(personId.toString()))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    void createPerson_success() throws Exception {
 
         // when
-        Person buildPerson = PersonTestBuilder.buildPerson();
-        ResponseEntity<ResponseDtoPerson> expected = restTemplate.getForEntity(
-                "http://localhost:" + port + "/persons/" + buildPerson.getUuid(), ResponseDtoPerson.class);
-        // given
-        ResponseDtoPerson actual = personServiceImpl.getById(buildPerson.getUuid());
+        RequestDtoPerson createPerson = PersonTestBuilder.builder().build().requestCreateDtoPerson();
+        System.out.println(createPerson);
+        ResponseDtoPerson createdPerson = PersonTestBuilder.builder().build().responseDtoPerson();
+        System.out.println(createdPerson);
+
+        Mockito.when(personServiceImpl.create(createPerson)).thenReturn(createdPerson);
 
         // then
-        assertEquals(actual.passport(), expected.getBody().passport());
-        assertThat(actual)
-                .hasFieldOrPropertyWithValue("name", expected.getBody().name())
-                .hasFieldOrPropertyWithValue("surname", expected.getBody().surname())
-                .hasFieldOrPropertyWithValue("sex", expected.getBody().sex())
-                .hasFieldOrPropertyWithValue("passport", expected.getBody().passport())
-        ;
-        assertThat(expected.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(expected.getBody()).isNotNull();
+        mockMvc.perform(MockMvcRequestBuilders.post("/persons")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(createPerson))
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.name", is(createdPerson.name())))
+                .andDo(MockMvcResultHandlers.print());
+
     }
 
     @Test
-    void createPerson() {
+    void updatePerson_success() throws Exception {
+        RequestDtoPerson requestDtoPerson = PersonTestBuilder.builder().build().requestDtoPerson();
+        ResponseDtoPerson responseDtoPerson = PersonTestBuilder.builder().build().responseDtoPerson();
+
+        RequestDtoPerson updateRequestDtoPerson = new RequestDtoPerson(requestDtoPerson.uuid()
+                , "Update"
+                , "Updatavich"
+                , requestDtoPerson.sex()
+                , requestDtoPerson.createDate()
+                , requestDtoPerson.updateDate()
+                , requestDtoPerson.passport()
+                , requestDtoPerson.house()
+                , false
+        );
+        ResponseDtoPerson updateResponseDtoPerson = new ResponseDtoPerson(responseDtoPerson.uuid()
+                , "Update"
+                , "Updatavich"
+                , responseDtoPerson.sex()
+                , responseDtoPerson.createDate()
+                , responseDtoPerson.updateDate()
+                , responseDtoPerson.passport()
+        );
+
+        Mockito.when(personServiceImpl.getById(UUID.fromString(requestDtoPerson.uuid()))).thenReturn(responseDtoPerson);
+        Mockito.when(personServiceImpl.update(UUID.fromString(requestDtoPerson.uuid()), requestDtoPerson)).thenReturn(updateResponseDtoPerson);
+
+
+        MockHttpServletRequestBuilder mockRequest = put("/persons/{id}", requestDtoPerson.uuid())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(requestDtoPerson));
+
+        // then
+        mockMvc.perform(mockRequest)
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.uuid", is(responseDtoPerson.uuid())))
+                .andDo(MockMvcResultHandlers.print());
+
+    }
+
+    @Test
+    public void deletePerson_success() throws Exception {
 
         // when
-        House house = HouseTestBuilder.testHouse();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String personId = "ada7d136-a1ba-4a3d-bc04-95872e9324f3";
+        LocalDateTime create = LocalDateTime.parse("2024-02-01 23:43:51.524", formatter);
+        LocalDateTime update = LocalDateTime.parse("2024-02-01 23:43:51.524", formatter);
 
-        RequestDtoPerson requestDtoPerson = PersonTestBuilder.builder().build().requestDtoPerson(house);
+        ResponseDtoPerson deleteResponseDtoPerson = new ResponseDtoPerson(
+                personId
+                , "Mark"
+                , "Cucumber"
+                , "Male"
+                , create
+                , update
+                , new Passport("0000f", "490-f")
 
-        // given
-        ResponseDtoPerson actual = personServiceImpl.create(requestDtoPerson);
+        );
+
+        Mockito.when(personServiceImpl.getById(UUID.fromString(personId))).thenReturn(deleteResponseDtoPerson);
 
         // then
-        assertEquals(actual.passport(), requestDtoPerson.passport());
-
+        mockMvc.perform(delete("/persons/{id}", personId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
-    void createPersonByTestTemplate() {
-
-        // when
-        House house = HouseTestBuilder.testHouse();
-
-        RequestDtoPerson requestDtoPerson = PersonTestBuilder.builder().build().requestDtoPerson(house);
-
-        ResponseEntity<ResponseDtoPerson> expected = restTemplate.postForEntity(
-                "http://localhost:" + port + "/persons", requestDtoPerson, ResponseDtoPerson.class);
-
-        // given
-
-        // then
-        assertThat(expected.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(expected.getBody()).isNotNull();
-        assertEquals(requestDtoPerson.passport(), expected.getBody().passport());
-
-    }
-
-    @Test
-    void updatePerson() {
-
-        // when
-        Person person = PersonTestBuilder.buildPerson();
-        person.setName("testName");
-        person.setSurname("testSurname");
-        RequestDtoPerson requestDtoPerson = new RequestDtoPerson(person.getUuid().toString(),
-                person.getName(),
-                person.getSurname(),
-                person.getSex(),
-                person.getCreateDate(),
-                LocalDateTime.now(),
-                new Passport(person.getUuid().toString().substring(0, 5), person.getUuid().toString().substring(5, 10)),
-                person.getHouse(),
-                false);
-
-        // given
-        ResponseDtoPerson update = personServiceImpl.update(UUID.fromString(requestDtoPerson.uuid()), requestDtoPerson);
-
-        // then
-        assertNotEquals(PersonTestBuilder.buildPerson().getName(), update.name());
-        assertNotEquals(PersonTestBuilder.buildPerson().getSurname(), update.surname());
-    }
-
-    @Test
-    void addOwnerToHouse() {
-
+    void addOwnerToHouse() throws Exception {
         // when
         UUID houseId = UUID.fromString("b7d69c82-9833-4364-9c77-a0ecfc467c63");
         UUID personId = UUID.fromString("fd668dac-ad7f-4a24-87a7-c49b435f74bb");
 
         // given
-        ResponseEntity<Void> response = restTemplate.exchange(
-                "http://localhost:" + port + "/persons/" + personId + "/houses/" + houseId, HttpMethod.PUT, null, Void.class);
-        // then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
+        Mockito.doNothing().when(personServiceImpl).addOwnerToHouse(personId, houseId);
 
+        // then
+        mockMvc.perform(put("/persons/{personId}/houses/{houseId}", personId, houseId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
     @Test
-    void deletePerson() {
+    void getHousesByPersonId_success() throws Exception {
 
         // when
-        UUID personId = UUID.fromString("fd668dac-ad7f-4a24-87a7-c49b435f74bb");
-        // given
-        restTemplate.delete("http://localhost:" + port + "/persons/" + personId);
-        // then
-        ResponseEntity<ResponseDtoPerson> response = restTemplate.getForEntity(
-                "http://localhost:" + port + "/persons/" + personId, ResponseDtoPerson.class);
+        ResponseDtoPerson responseDtoPerson = PersonTestBuilder.builder().build().responseDtoPerson();
+        UUID personId = UUID.fromString(responseDtoPerson.uuid());
+        int size = PersonTestBuilder.builder().build().getDtoHouses().size();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Mockito.when(personServiceImpl.getById(personId)).thenReturn(responseDtoPerson);
+        Mockito.when(personServiceImpl.getHousesByPersonId(personId))
+                .thenReturn(PersonTestBuilder.builder().build().getDtoHouses());
+
+        // then
+        mockMvc.perform(get("/persons/{personId}/houses", personId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$",hasSize(size)));
     }
+    /*
+
+      */
 
     @Test
-    void getHousesByPersonId() {
-
+    void getOwnedHousesByPersonId() throws Exception {
         // when
         UUID personId = UUID.fromString("fd668dac-ad7f-4a24-87a7-c49b435f74bb");
-        // given
-        ResponseEntity<ResponseDtoHouse[]> response = restTemplate.getForEntity(
-                "http://localhost:" + port + "/persons/" + personId + "/houses", ResponseDtoHouse[].class);
+        int size = PersonTestBuilder.builder().build().getDtoHouses().size();
+        Mockito.when(personServiceImpl.getOwnedHousesByPersonId(personId))
+                .thenReturn(PersonTestBuilder.builder().build().getDtoHouses());
+
         // then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-    }
-
-
-    @Test
-    void getOwnedHousesByPersonId() {
-
-        // when
-        UUID personId = UUID.fromString("fd668dac-ad7f-4a24-87a7-c49b435f74bb");
-        // given
-        ResponseEntity<ResponseDtoHouse[]> response = restTemplate.getForEntity(
-                "http://localhost:" + port + "/persons/" + personId + "/owned-houses", ResponseDtoHouse[].class);
-        // then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
+        mockMvc.perform(get("/persons/{id}/owned-houses", personId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(size)))
+                .andDo(MockMvcResultHandlers.print());
     }
 
 }

@@ -20,6 +20,7 @@ public abstract class PostgresSqlContainerInitialization {
 
     @BeforeAll
     static void startContainer() {
+
         postgreSQLContainer.start();
     }
 
