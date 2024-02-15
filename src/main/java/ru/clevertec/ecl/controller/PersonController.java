@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequestMapping("/persons")
 public class PersonController {
 
-    private final PersonService personService;
+    private final PersonService<ResponseDtoPerson, RequestDtoPerson> personService;
 
     @GetMapping
     public ResponseEntity<Collection<ResponseDtoPerson>> getAllPersons(@RequestParam(defaultValue = "15") int size) {
@@ -41,12 +41,6 @@ public class PersonController {
         ResponseDtoPerson person = personService.getById(id);
         return new ResponseEntity<>(person, HttpStatus.OK);
     }
-//    @GetMapping("/{personId}/own-houses")
-//    public ResponseEntity<Collection<ResponseDtoHouse>> getOwnedHouses(@PathVariable UUID personId) {
-//
-//        Collection<ResponseDtoHouse> ownedHouses = personService.getOwnedHouses(personId);
-//        return new ResponseEntity<>(ownedHouses, HttpStatus.OK);
-//    }
 
     @PostMapping
     public ResponseEntity<ResponseDtoPerson> createPerson(@RequestBody RequestDtoPerson requestDtoPerson) {
@@ -55,11 +49,23 @@ public class PersonController {
         return new ResponseEntity<>(createdPerson, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseDtoPerson> updatePerson(@PathVariable UUID id, @RequestBody RequestDtoPerson requestDtoPerson) {
+    @PutMapping("/{uuid}")
+    public ResponseEntity<ResponseDtoPerson> updatePerson(@PathVariable UUID uuid, @RequestBody RequestDtoPerson requestDtoPerson) {
 
-        ResponseDtoPerson updatedPerson = personService.update(id, requestDtoPerson);
+        ResponseDtoPerson updatedPerson = personService.update(uuid, requestDtoPerson);
         return new ResponseEntity<>(updatedPerson, HttpStatus.OK);
+    }
+
+    @PutMapping("/{personUuid}/houses/{houseUuid}")
+    public ResponseEntity<Void> addOwnerToHouse(
+            @PathVariable UUID personUuid,
+            @PathVariable UUID houseUuid) {
+
+        // Обновляем дом и связанного человека
+        personService.addOwnerToHouse(personUuid, houseUuid);
+
+        // Возвращаем ответ без тела, но со статусом OK
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

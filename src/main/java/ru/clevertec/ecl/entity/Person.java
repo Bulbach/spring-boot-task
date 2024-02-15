@@ -1,6 +1,7 @@
 package ru.clevertec.ecl.entity;
 
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -19,19 +20,27 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 
-@Data
 @Entity
 @Table(name = "person")
+@Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(exclude = {"ownedHouses", "houseHistories"})
 public class Person {
 
@@ -67,21 +76,22 @@ public class Person {
 
     @Embedded
     private Passport passport;
-    @Transient
-    private boolean owner;
 
     @ManyToOne()
     @JoinColumn(name = "house_id")
     @ToString.Exclude
     private House house;
 
+    @Transient
+    private boolean owner;
+
     @ManyToMany(mappedBy = "owners", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Set<House> ownedHouses = new HashSet<>();
+    private Set<House> ownedHouses;
 
-    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, orphanRemoval = false)
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, orphanRemoval = false, cascade = CascadeType.ALL)
     @ToString.Exclude
-    private Set<HouseHistory> houseHistories = new HashSet<>();
+    private Set<HouseHistory> houseHistories;
 
 
     public enum Sex {

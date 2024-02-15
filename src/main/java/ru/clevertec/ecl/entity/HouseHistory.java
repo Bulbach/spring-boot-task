@@ -28,7 +28,7 @@ public class HouseHistory {
     @JoinColumn(name = "house_id")
     private House house;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinColumn(name = "person_id")
     private Person person;
 

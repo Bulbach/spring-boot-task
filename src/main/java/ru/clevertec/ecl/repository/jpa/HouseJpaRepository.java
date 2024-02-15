@@ -8,11 +8,12 @@ import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Person;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface HouseJpaRepository extends JpaRepository<House, UUID> {
-    House findByUuid(UUID uuid);
+    Optional<House> findByUuid(UUID uuid);
 
     /**
      * Получение всех Person, которые когда-либо проживали в доме с указанным UUID

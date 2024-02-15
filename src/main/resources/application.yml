@@ -31,27 +31,27 @@ spring:
     change-log: classpath:changelog.yaml
   cache:
     algorithm: LRU
-    max-size: 1000
+    max_size: 1000
 
 ---
-spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    url: jdbc:tc:postgresql://hostname/databasename
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    username: test
-    password: test
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+#spring:
+#  config:
+#    activate:
+#      on-profile: test
+#  datasource:
+#    url: jdbc:tc:postgresql://hostname/databasename
+#    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+#    username: test
+#    password: test
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        use_sql_comments: true
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
 ---
 spring:
   config:
