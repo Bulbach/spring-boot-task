@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "passport", uniqueConstraints = @UniqueConstraint(columnNames = {"passportSeries", "passportNumber"}))
+@Table(name = "passport", uniqueConstraints = @UniqueConstraint(columnNames = {"passportseries", "passportnumber"}))
 public class Passport {
 
-    @Column(name = "passportSeries", nullable = false)
+    @Column(name = "passportseries", nullable = false)
     private String passportSeries;
 
-    @Column(name = "passportNumber", nullable = false, unique = true)
+    @Column(name = "passportnumber", nullable = false, unique = true)
     private String passportNumber;
 
 }

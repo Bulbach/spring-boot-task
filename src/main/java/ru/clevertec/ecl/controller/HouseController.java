@@ -1,7 +1,6 @@
 package ru.clevertec.ecl.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
-import ru.clevertec.ecl.service.service.impl.HouseService;
+import ru.clevertec.ecl.service.HouseService;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +26,7 @@ import java.util.UUID;
 @RequestMapping("/houses")
 public class HouseController {
 
-    @Autowired
-    private final HouseService houseService;
+    private final HouseService<ResponseDtoHouse, RequestDtoHouse> houseService;
 
     @GetMapping
     public ResponseEntity<Collection<ResponseDtoHouse>> getAll(@RequestParam(defaultValue = "15") int size) {
@@ -71,4 +69,18 @@ public class HouseController {
         houseService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/{houseId}/tenants")
+    public ResponseEntity<Collection<ResponseDtoPerson>> getTenantsByHouseId(@PathVariable UUID houseId) {
+
+        List<ResponseDtoPerson> tenants = houseService.getTenantsByHouseId(houseId);
+        return new ResponseEntity<>(tenants, HttpStatus.OK);
+    }
+
+    @GetMapping("/{houseId}/owners")
+    public ResponseEntity<Collection<ResponseDtoPerson>> getOwnersByHouseId(@PathVariable UUID houseId) {
+        List<ResponseDtoPerson> owners = houseService.getOwnersByHouseId(houseId);
+        return new ResponseEntity<>(owners, HttpStatus.OK);
+    }
+
 }

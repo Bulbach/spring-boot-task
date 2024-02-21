@@ -12,8 +12,8 @@ import ru.clevertec.ecl.repository.impl.HouseRepositoryImpl;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-@Configuration
-@Profile("test")
+//@Configuration
+//@Profile("test")
 public class TestDatabaseConfig {
 
     @Bean

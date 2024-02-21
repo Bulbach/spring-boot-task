@@ -2,6 +2,7 @@ package ru.clevertec.ecl.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,25 +13,38 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@Data
 @Entity
 @Table(name = "house")
-@EqualsAndHashCode(exclude = {"residents","owners"})
+@Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@EqualsAndHashCode(exclude = {"ownedHouses", "residents", "houseHistories"})
 public class House {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(name = "uuid", unique = true, nullable = false, columnDefinition = "UUID")
     private UUID uuid;
 
@@ -55,21 +69,48 @@ public class House {
 
     @NotBlank
     @Size(max = 120)
-    @Column(name = "houseNumber", nullable = false)
+    @Column(name = "housenumber", nullable = false)
     private String houseNumber;
 
     @NotNull
     @Column(name = "create_date", nullable = false)
+    @DateTimeFormat(fallbackPatterns = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createDate;
 
     @OneToMany(mappedBy = "house")
+    @ToString.Exclude
     private Set<Person> residents;
 
-    @ManyToMany
-    @JoinTable(
-            name = "house_owners",
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "house_owners",
             joinColumns = @JoinColumn(name = "house_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id")
     )
-    private Set<Person> owners;
+    @ToString.Exclude
+    private List<Person> owners;
+
+    @OneToMany(mappedBy = "house", fetch = FetchType.LAZY, orphanRemoval = false)
+    @ToString.Exclude
+    private Set<HouseHistory> houseHistories;
+
+    public void addOwner(Person person) {
+        owners.add(person);
+        person.getOwnedHouses().add(this);
+    }
+
+    public void removeOwner(Person person) {
+        owners.remove(person);
+        person.getOwnedHouses().remove(this);
+    }
+
+    public void addResident(Person person) {
+        residents.add(person);
+        person.setHouse(this);
+    }
+
+    public void removeResident(Person person) {
+        residents.remove(person);
+        person.setHouse(null);
+    }
+
 }

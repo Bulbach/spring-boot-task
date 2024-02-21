@@ -23,15 +23,6 @@ create TABLE person (
     FOREIGN KEY (house_id) REFERENCES house(id)
 );
 
--- Связь для жильцов
-create TABLE house_residents (
-    house_id BIGINT,
-    person_id BIGINT,
-    PRIMARY KEY (house_id, person_id),
-    FOREIGN KEY (house_id) REFERENCES house(id),
-    FOREIGN KEY (person_id) REFERENCES person(id)
-);
-
 -- Связь для владельцев
 create TABLE house_owners (
     house_id BIGINT,

@@ -3,12 +3,19 @@ spring:
     active: development
 ---
 spring:
-  profiles: development
-  database:
+  config:
+    activate:
+      on-profile: development
+  datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/myClevertecDB
     username: alex
     password: alex
+    hikari:
+      connection-timeout: 20000
+      idle-timeout: 300000
+      maximum-pool-size: 10
+      minimum-idle: 2
 
   jpa:
     hibernate:
@@ -19,27 +26,37 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:changelog.yaml
+  cache:
+    algorithm: LRU
+    max_size: 1000
 
 ---
-spring:
-  profiles: test
-  database:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password: password
-  jpa:
-    hibernate:
-    ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.H2Dialect
+#spring:
+#  config:
+#    activate:
+#      on-profile: test
+#  datasource:
+#    url: jdbc:tc:postgresql://hostname/databasename
+#    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+#    username: test
+#    password: test
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        use_sql_comments: true
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
 ---
 spring:
-  profiles: production
+  config:
+    activate:
+      on-profile: production
   database:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/myClevertecDB

@@ -14,9 +14,15 @@ public interface PersonMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ownedHouses", ignore = true)
+    @Mapping(target = "houseHistories", ignore = true)
+    @Mapping(source = "isOwner", target = "owner")
     Person toModel(RequestDtoPerson requestDtoPerson);
+
     ResponseDtoPerson toDto(Person person);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ownedHouses", ignore = true)
+    @Mapping(target = "houseHistories", ignore = true)
+    @Mapping(target = "owner",source = "isOwner")
     void updateModel(RequestDtoPerson requestDtoPerson, @MappingTarget Person person);
 }

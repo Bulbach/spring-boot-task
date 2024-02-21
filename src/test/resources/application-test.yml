@@ -1,17 +1,9 @@
 spring:
-  profiles: test
   database:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/myClevertecDB
-    username: alex
-    password: alex
+    driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:15.1-alpine://localhost/test
+    username: test
+    password: test
 
-  jpa:
-    hibernate:
-      ddl-auto: none
-      show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
