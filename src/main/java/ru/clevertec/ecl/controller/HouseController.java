@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
-import ru.clevertec.ecl.service.service.impl.HouseService;
+import ru.clevertec.ecl.service.HouseService;
 
 import java.util.Collection;
 import java.util.List;

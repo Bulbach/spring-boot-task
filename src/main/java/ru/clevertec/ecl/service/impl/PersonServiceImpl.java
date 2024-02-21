@@ -1,11 +1,9 @@
-package ru.clevertec.ecl.service.service.impl;
+package ru.clevertec.ecl.service.impl;
 
-
+import by.bulbach.exceptionspringbootstarter.exception.HouseNotFoundException;
+import by.bulbach.exceptionspringbootstarter.exception.PersonNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.cache.annotation.CustomCachableGet;
@@ -17,12 +15,11 @@ import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Person;
-import ru.clevertec.ecl.exception.HouseNotFoundException;
-import ru.clevertec.ecl.exception.PersonNotFoundException;
 import ru.clevertec.ecl.mapper.HouseMapper;
 import ru.clevertec.ecl.mapper.PersonMapper;
 import ru.clevertec.ecl.repository.jpa.HouseJpaRepository;
 import ru.clevertec.ecl.repository.jpa.PersonJpaRepository;
+import ru.clevertec.ecl.service.PersonService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

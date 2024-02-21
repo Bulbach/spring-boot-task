@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Passport;
 import ru.clevertec.ecl.entity.Person;
@@ -46,6 +47,7 @@ public interface PersonJpaRepository extends JpaRepository<Person, UUID> {
     List<House> findOwnedHousesByPersonId(@Param("personId") UUID personId);
 
     @Modifying
+    @Transactional
     @Query(value = "INSERT INTO house_owners (house_id, person_id) VALUES (:houseId, :personId)", nativeQuery = true)
     void addOwnerToHouse(@Param("houseId") Long houseId, @Param("personId") Long personId);
 

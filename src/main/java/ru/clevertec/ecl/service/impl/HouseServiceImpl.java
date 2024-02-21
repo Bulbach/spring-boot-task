@@ -1,5 +1,6 @@
-package ru.clevertec.ecl.service.service.impl;
+package ru.clevertec.ecl.service.impl;
 
+import by.bulbach.exceptionspringbootstarter.exception.HouseNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +12,10 @@ import ru.clevertec.ecl.dto.requestDto.RequestDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 import ru.clevertec.ecl.entity.House;
-import ru.clevertec.ecl.exception.HouseNotFoundException;
 import ru.clevertec.ecl.mapper.HouseMapper;
 import ru.clevertec.ecl.mapper.PersonMapper;
 import ru.clevertec.ecl.repository.jpa.HouseJpaRepository;
+import ru.clevertec.ecl.service.HouseService;
 
 import java.util.Collection;
 import java.util.List;

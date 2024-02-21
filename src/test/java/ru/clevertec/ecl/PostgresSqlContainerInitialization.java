@@ -10,7 +10,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Transactional
+//@Transactional
 @Testcontainers
 @ActiveProfiles("test")
 public abstract class PostgresSqlContainerInitialization {

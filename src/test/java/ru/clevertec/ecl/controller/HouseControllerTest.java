@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
-import ru.clevertec.ecl.service.service.impl.HouseService;
+import ru.clevertec.ecl.service.HouseService;
 import ru.clevertec.ecl.util.HouseTestBuilder;
 
 import java.util.List;

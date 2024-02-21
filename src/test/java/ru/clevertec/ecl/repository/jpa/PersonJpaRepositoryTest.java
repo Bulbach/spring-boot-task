@@ -9,7 +9,7 @@ import org.springframework.test.context.TestConstructor;
 import ru.clevertec.ecl.PostgresSqlContainerInitialization;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Person;
-import ru.clevertec.ecl.exception.HouseNotFoundException;
+import by.bulbach.exceptionspringbootstarter.exception.HouseNotFoundException;
 import ru.clevertec.ecl.util.HouseTestBuilder;
 import ru.clevertec.ecl.util.PersonTestBuilder;
 
@@ -104,7 +104,7 @@ public class PersonJpaRepositoryTest extends PostgresSqlContainerInitialization 
         // then
         Assertions.assertEquals(2, result.size());
     }
-@Test
+    @Test
     void addOwnerToHouse_success(){
 
         UUID personUuid = UUID.fromString("62672de0-6061-4950-ac08-fea4fefdb7de");

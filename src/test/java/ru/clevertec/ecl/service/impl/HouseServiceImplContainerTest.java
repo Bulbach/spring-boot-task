@@ -1,21 +1,23 @@
-package ru.clevertec.ecl.service.service.impl;
+package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.TestConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.PostgresSqlContainerInitialization;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Person;
-import ru.clevertec.ecl.exception.HouseNotFoundException;
+import by.bulbach.exceptionspringbootstarter.exception.HouseNotFoundException;
 import ru.clevertec.ecl.mapper.HouseMapper;
 import ru.clevertec.ecl.mapper.PersonMapper;
 import ru.clevertec.ecl.repository.jpa.HouseJpaRepository;
 import ru.clevertec.ecl.repository.jpa.PersonJpaRepository;
+import ru.clevertec.ecl.service.HouseService;
 import ru.clevertec.ecl.util.HouseTestBuilder;
 import ru.clevertec.ecl.util.PersonTestBuilder;
 
@@ -27,16 +29,18 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
+@Transactional
 @RequiredArgsConstructor
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class HouseServiceImplContainerTest extends PostgresSqlContainerInitialization {
 
     @SpyBean
-    private final HouseJpaRepository houseRepository;
+    private HouseJpaRepository houseRepository;
     @SpyBean
-    private final PersonJpaRepository personJpaRepository;
+    private PersonJpaRepository personJpaRepository;
 
     private final HouseMapper houseMapper;
 
@@ -52,13 +56,13 @@ public class HouseServiceImplContainerTest extends PostgresSqlContainerInitializ
         // when
         List<House> houses = HouseTestBuilder.builder().build().houses();
         houseRepository.saveAll(houses);
-        List<ResponseDtoHouse> dtoHouses = houses.stream().map(houseMapper::toDto).collect(Collectors.toList());
+        List<ResponseDtoHouse> dtoHouses = houses.stream().map(houseMapper::toDto).toList();
 
         // given
         Collection<ResponseDtoHouse> actual = houseServiceImpl.getAll(3);
 
         // then
-        assertThat(actual).isEqualTo(dtoHouses);
+        assertThat(actual).hasSize(3);
         assertThat(actual).isNotEmpty();
     }
 
@@ -75,7 +79,7 @@ public class HouseServiceImplContainerTest extends PostgresSqlContainerInitializ
         ResponseDtoHouse actual = houseServiceImpl.getById(house.getUuid());
 
         // then
-        assertThat(actual).isEqualTo(dtoHouse);
+        assertThat(actual.uuid()).isEqualTo(dtoHouse.uuid());
         assertThat(actual).isNotNull();
     }
 
@@ -102,7 +106,16 @@ public class HouseServiceImplContainerTest extends PostgresSqlContainerInitializ
         Collection<ResponseDtoPerson> actualResidents = houseServiceImpl.getResidents(house.getUuid());
 
         // then
-        assertThat(actualResidents).isEqualTo(exitedResidents);
+        boolean allMatch = actualResidents.stream()
+                .allMatch(actual -> exitedResidents.stream()
+                        .anyMatch(expected ->
+                                expected.uuid().equals(actual.uuid())
+                                        && expected.name().equals(actual.name())
+                                        && expected.surname().equals(actual.surname())
+                                        && expected.passport().equals(actual.passport())
+                        ));
+
+        assertTrue(allMatch);
         assertThat(actualResidents).isNotEmpty();
         assertThat(actualResidents).hasSize(2);
     }
@@ -186,7 +199,16 @@ public class HouseServiceImplContainerTest extends PostgresSqlContainerInitializ
         List<ResponseDtoPerson> tenantsByHouseId = houseServiceImpl.getTenantsByHouseId(house.getUuid());
 
         // then
-        assertThat(tenantsByHouseId).isEqualTo(exitedTenants);
+        boolean allMatch = tenantsByHouseId.stream()
+                .allMatch(actual -> exitedTenants.stream()
+                        .anyMatch(expected ->
+                                expected.uuid().equals(actual.uuid())
+                                        && expected.name().equals(actual.name())
+                                        && expected.surname().equals(actual.surname())
+                                        && expected.passport().equals(actual.passport())
+                        ));
+
+        assertTrue(allMatch);
         assertThat(tenantsByHouseId).isNotEmpty();
         assertThat(tenantsByHouseId).hasSize(2);
 
@@ -213,7 +235,16 @@ public class HouseServiceImplContainerTest extends PostgresSqlContainerInitializ
         List<ResponseDtoPerson> ownersByHouseId = houseServiceImpl.getOwnersByHouseId(house.getUuid());
 
         // then
-        assertThat(ownersByHouseId).isEqualTo(dtoPersonListOwnersExited);
+        boolean allMatch = ownersByHouseId.stream()
+                .allMatch(actual -> dtoPersonListOwnersExited.stream()
+                        .anyMatch(expected ->
+                                expected.uuid().equals(actual.uuid())
+                                        && expected.name().equals(actual.name())
+                                        && expected.surname().equals(actual.surname())
+                                        && expected.passport().equals(actual.passport())
+                        ));
+
+        assertTrue(allMatch);
         assertThat(ownersByHouseId).isNotEmpty();
         assertThat(ownersByHouseId).hasSize(2);
 

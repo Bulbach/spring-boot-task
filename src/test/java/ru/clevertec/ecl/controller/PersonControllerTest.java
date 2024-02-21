@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoPerson;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 import ru.clevertec.ecl.entity.Passport;
-import ru.clevertec.ecl.service.service.impl.PersonServiceImpl;
+import ru.clevertec.ecl.service.impl.PersonServiceImpl;
 import ru.clevertec.ecl.util.PersonTestBuilder;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package ru.clevertec.ecl.service.service.impl;
+package ru.clevertec.ecl.service;
 
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
 

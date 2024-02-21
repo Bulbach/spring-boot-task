@@ -79,7 +79,7 @@ public class House {
 
     @OneToMany(mappedBy = "house")
     @ToString.Exclude
-    private Set<Person> residents = new HashSet<>();
+    private Set<Person> residents;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "house_owners",
@@ -87,11 +87,11 @@ public class House {
             inverseJoinColumns = @JoinColumn(name = "person_id")
     )
     @ToString.Exclude
-    private List<Person> owners = new ArrayList<>();
+    private List<Person> owners;
 
     @OneToMany(mappedBy = "house", fetch = FetchType.LAZY, orphanRemoval = false)
     @ToString.Exclude
-    private Set<HouseHistory> houseHistories = new HashSet<>();
+    private Set<HouseHistory> houseHistories;
 
     public void addOwner(Person person) {
         owners.add(person);

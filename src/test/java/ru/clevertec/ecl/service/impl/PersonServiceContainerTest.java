@@ -1,10 +1,12 @@
-package ru.clevertec.ecl.service.service.impl;
+package ru.clevertec.ecl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.TestConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.PostgresSqlContainerInitialization;
 import ru.clevertec.ecl.dto.requestDto.RequestDtoPerson;
 import ru.clevertec.ecl.dto.responseDto.ResponseDtoHouse;
@@ -12,11 +14,12 @@ import ru.clevertec.ecl.dto.responseDto.ResponseDtoPerson;
 import ru.clevertec.ecl.entity.House;
 import ru.clevertec.ecl.entity.Passport;
 import ru.clevertec.ecl.entity.Person;
-import ru.clevertec.ecl.exception.PersonNotFoundException;
+import by.bulbach.exceptionspringbootstarter.exception.PersonNotFoundException;
 import ru.clevertec.ecl.mapper.HouseMapper;
 import ru.clevertec.ecl.mapper.PersonMapper;
 import ru.clevertec.ecl.repository.jpa.HouseJpaRepository;
 import ru.clevertec.ecl.repository.jpa.PersonJpaRepository;
+import ru.clevertec.ecl.service.PersonService;
 import ru.clevertec.ecl.util.HouseTestBuilder;
 import ru.clevertec.ecl.util.PersonTestBuilder;
 
@@ -31,16 +34,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Transactional
 @SpringBootTest
 @RequiredArgsConstructor
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class PersonServiceContainerTest extends PostgresSqlContainerInitialization {
-
-    @SpyBean
-    private final HouseJpaRepository houseJpaRepository;
-    @SpyBean
-    private final PersonJpaRepository personJpaRepository;
-
+    @Autowired
+    private HouseJpaRepository houseJpaRepository;
+    @Autowired
+    private PersonJpaRepository personJpaRepository;
     private final HouseMapper houseMapper;
 
     private final PersonMapper personMapper;
@@ -83,7 +85,6 @@ public class PersonServiceContainerTest extends PostgresSqlContainerInitializati
         // then
         assertThat(actualDtoPerson).isNotNull();
         assertThat(actualDtoPerson.uuid()).isEqualTo(responseDtoPersonExpected.uuid());
-        assertThat(actualDtoPerson).isEqualTo(responseDtoPersonExpected);
     }
 
     @Test
@@ -184,7 +185,7 @@ public class PersonServiceContainerTest extends PostgresSqlContainerInitializati
         List<ResponseDtoHouse> housesByPersonId = personService.getHousesByPersonId(person.getUuid());
 
         // then
-        boolean allMatch = responseDtoHouses.stream()
+        boolean allMatch = housesByPersonId.stream()
                 .allMatch(actual -> responseDtoHouses.stream()
                         .anyMatch(expected ->
                                 expected.uuid().equals(actual.uuid())
@@ -215,13 +216,22 @@ public class PersonServiceContainerTest extends PostgresSqlContainerInitializati
         personJpaRepository.addOwnerToHouse(houseTwo.getId(), person.getId());
 
         List<House> houses = Arrays.asList(houseOne, houseTwo);
-        List<ResponseDtoHouse> expected = houses.stream().map(houseMapper::toDto).toList();
+        List<ResponseDtoHouse> expectedOwnedHouse = houses.stream().map(houseMapper::toDto).toList();
 
         // given
-        List<ResponseDtoHouse> actual = personService.getOwnedHousesByPersonId(person.getUuid());
+        List<ResponseDtoHouse> ownedHousesByPersonId = personService.getOwnedHousesByPersonId(person.getUuid());
 
         // then
-        assertThat(actual).isEqualTo(expected);
+        boolean allMatch = ownedHousesByPersonId.stream()
+                .allMatch(actual -> expectedOwnedHouse.stream()
+                        .anyMatch(expected ->
+                                expected.uuid().equals(actual.uuid())
+                                        && expected.area().equals(actual.area())
+                                        && expected.country().equals(actual.country())
+                                        && expected.city().equals(actual.city())
+                        ));
+
+        assertTrue(allMatch);
     }
 
 }

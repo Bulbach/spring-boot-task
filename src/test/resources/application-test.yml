@@ -1,6 +1,7 @@
 spring:
   database:
-#    url: jdbc:tc:postgresql:15.1-alpine:///test?TC_TMPFS=/testtmpfs:rw
+    driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:15.1-alpine://localhost/test
     username: test
     password: test
 
